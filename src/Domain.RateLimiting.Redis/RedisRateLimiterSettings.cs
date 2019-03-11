@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Domain.RateLimiting.Core;
-
-namespace Domain.RateLimiting.Redis
+﻿namespace Domain.RateLimiting.Redis
 {
-    public class RedisRateLimiterSettings
+	public class RedisRateLimiterSettings
     {
         public RedisRateLimiterSettings()
         {
@@ -19,7 +14,11 @@ namespace Domain.RateLimiting.Redis
         /// </value>
         public string RateLimitRedisCacheConnectionString { get; set; }
 
-        public int FaultThreshholdPerWindowDuration { get; set; }
+		public string RateLimitRedisCachePasswordString { get; set; }
+
+		public bool RateLimitRedisCacheSsl { get; set; }
+
+		public int FaultThreshholdPerWindowDuration { get; set; }
 
         public int FaultWindowDurationInMilliseconds { get; set; }
 

@@ -43,8 +43,24 @@ namespace Domain.RateLimiting.Redis
 
         private readonly LoadedLuaScript _loadedLuaScript;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="redisEndpoint"></param>
+		/// <param name="redisPassword"></param>
+		/// <param name="redisSsl"></param>
+		/// <param name="onException"></param>
+		/// <param name="onThrottled"></param>
+		/// <param name="connectionTimeoutInMilliseconds"></param>
+		/// <param name="syncTimeoutInMilliseconds"></param>
+		/// <param name="countThrottledRequests"></param>
+		/// <param name="circuitBreaker"></param>
+		/// <param name="clock"></param>
+		/// <param name="connectToRedisFunc"></param>
         public LeakyBucketRateLimiter(
             string redisEndpoint,
+			string redisPassword = null,
+			bool redisSsl = false,
             Action<Exception> onException = null,
             Action<RateLimitingResult> onThrottled = null,
             int connectionTimeoutInMilliseconds = 2000,
@@ -54,7 +70,9 @@ namespace Domain.RateLimiting.Redis
             IClock clock = null,
             Func<Task<IConnectionMultiplexer>> connectToRedisFunc = null) :
             base(redisEndpoint,
-                onException,
+				redisPassword,
+				redisSsl,
+				onException,
                 onThrottled,
                 connectionTimeoutInMilliseconds,
                 syncTimeoutInMilliseconds,

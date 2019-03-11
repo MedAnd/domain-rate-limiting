@@ -14,20 +14,36 @@ namespace Domain.RateLimiting.Redis
     {
         private static readonly IDictionary<RateLimitUnit, Func<AllowedConsumptionRate, Func<DateTime, string>>> RateLimitTypeCacheKeyFormatMapping =
             new Dictionary<RateLimitUnit, Func<AllowedConsumptionRate, Func<DateTime, string>>>
-        {
-            {RateLimitUnit.PerSecond, allowedCallrate => _ => RateLimitUnit.PerSecond.ToString()},
-            {RateLimitUnit.PerMinute, allowedCallrate => _ => RateLimitUnit.PerMinute.ToString()},
-            {RateLimitUnit.PerHour, allowedCallrate => _ => RateLimitUnit.PerHour.ToString()},
-            {RateLimitUnit.PerDay, allowedCallrate => _ => RateLimitUnit.PerDay.ToString()},
-            {RateLimitUnit.PerCustomPeriod, allowedCallRate => _ =>
-                {
-                    return $"{allowedCallRate.Period.StartDateTimeUtc.ToString("yyyyMMddHHmmss")}::{allowedCallRate.Period.Duration.TotalSeconds}";
-                    //throw new NotSupportedException("Custom Period is NOT currently supported by the sliding time window rate limiter. Consider using the SteppingTimeWindowRateLimiter.");
-                }
-            }
-       };
+		{
+			{RateLimitUnit.PerSecond, allowedCallrate => _ => RateLimitUnit.PerSecond.ToString()},
+			{RateLimitUnit.PerMinute, allowedCallrate => _ => RateLimitUnit.PerMinute.ToString()},
+			{RateLimitUnit.PerHour, allowedCallrate => _ => RateLimitUnit.PerHour.ToString()},
+			{RateLimitUnit.PerDay, allowedCallrate => _ => RateLimitUnit.PerDay.ToString()},
+			{RateLimitUnit.PerCustomPeriod, allowedCallRate => _ =>
+				{
+					return $"{allowedCallRate.Period.StartDateTimeUtc.ToString("yyyyMMddHHmmss")}::{allowedCallRate.Period.Duration.TotalSeconds}";
+					//throw new NotSupportedException("Custom Period is NOT currently supported by the sliding time window rate limiter. Consider using the SteppingTimeWindowRateLimiter.");
+				}
+			}
+		};
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="redisEndpoint"></param>
+		/// <param name="redisPassword"></param>
+		/// <param name="redisSsl"></param>
+		/// <param name="onException"></param>
+		/// <param name="onThrottled"></param>
+		/// <param name="connectionTimeoutInMilliseconds"></param>
+		/// <param name="syncTimeoutInMilliseconds"></param>
+		/// <param name="countThrottledRequests"></param>
+		/// <param name="circuitBreaker"></param>
+		/// <param name="clock"></param>
+		/// <param name="connectToRedisFunc"></param>
         public SlidingTimeWindowRateLimiter(string redisEndpoint,
+			string redisPassword = null,
+			bool redisSsl = false,
             Action<Exception> onException = null,
             Action<RateLimitingResult> onThrottled = null,
             int connectionTimeoutInMilliseconds = 2000,
@@ -36,7 +52,9 @@ namespace Domain.RateLimiting.Redis
             ICircuitBreaker circuitBreaker = null,
             IClock clock = null,
             Func<Task<IConnectionMultiplexer>> connectToRedisFunc = null) : base(redisEndpoint,
-            onException,
+			redisPassword,
+			redisSsl,
+			onException,
             onThrottled,
             connectionTimeoutInMilliseconds,
             syncTimeoutInMilliseconds,

@@ -18,8 +18,24 @@ namespace Domain.RateLimiting.Redis
         private readonly Func<Task<IConnectionMultiplexer>> _connectToRedisFunc;
         private readonly IClock _clock;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="redisEndpoint"></param>
+		/// <param name="redisPassword"></param>
+		/// <param name="redisSsl"></param>
+		/// <param name="onException"></param>
+		/// <param name="onThrottled"></param>
+		/// <param name="connectionTimeoutInMilliseconds"></param>
+		/// <param name="syncTimeoutInMilliseconds"></param>
+		/// <param name="countThrottledRequests"></param>
+		/// <param name="circuitBreaker"></param>
+		/// <param name="clock"></param>
+		/// <param name="connectToRedisFunc"></param>
         protected RedisRateLimiter(string redisEndpoint,
-            Action<Exception> onException = null,
+			string redisPassword,
+			bool redisSsl,
+			Action<Exception> onException = null,
             Action<RateLimitingResult> onThrottled = null,
             int connectionTimeoutInMilliseconds = 2000,
             int syncTimeoutInMilliseconds = 1000,
@@ -38,18 +54,31 @@ namespace Domain.RateLimiting.Redis
                 new DefaultCircuitBreaker(3, 10000, 300);
 
             if(connectToRedisFunc == null)
-                SetupConnectionConfiguration(redisEndpoint, connectionTimeoutInMilliseconds, syncTimeoutInMilliseconds);
+                SetupConnectionConfiguration(redisEndpoint, redisPassword, redisSsl, connectionTimeoutInMilliseconds, syncTimeoutInMilliseconds);
 
             //SetupCircuitBreaker(faultThreshholdPerWindowDuration, faultWindowDurationInMilliseconds, circuitOpenDurationInSecs, onException, onCircuitOpened, onCircuitClosed);
             ConnectToRedis(onException);
         }
 
-        private void SetupConnectionConfiguration(string redisEndpoint, int connectionTimeout, int syncTimeout)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="redisEndpoint"></param>
+		/// <param name="redisPassword"></param>
+		/// <param name="redisSsl"></param>
+		/// <param name="connectionTimeout"></param>
+		/// <param name="syncTimeout"></param>
+        private void SetupConnectionConfiguration(string redisEndpoint, string redisPassword, bool redisSsl, int connectionTimeout, int syncTimeout)
         {
             _redisConfigurationOptions = new ConfigurationOptions();
             _redisConfigurationOptions.EndPoints.Add(redisEndpoint);
             _redisConfigurationOptions.ClientName = "RedisRateLimiter";
-            _redisConfigurationOptions.ConnectTimeout = connectionTimeout;
+			_redisConfigurationOptions.Ssl = redisSsl;
+
+			if (!string.IsNullOrEmpty(redisPassword))
+				_redisConfigurationOptions.Password = redisPassword;
+
+			_redisConfigurationOptions.ConnectTimeout = connectionTimeout;
             _redisConfigurationOptions.SyncTimeout = syncTimeout;
             _redisConfigurationOptions.AbortOnConnectFail = false;
         }

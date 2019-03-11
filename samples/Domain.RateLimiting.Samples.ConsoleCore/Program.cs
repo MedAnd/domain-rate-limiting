@@ -13,7 +13,11 @@ namespace Domain.RateLimiting.Samples.ConsoleCore
         public static void Main(string[] args)
         {
             IRateLimitingCacheProvider rateLimiter =
-                new SlidingTimeWindowRateLimiter("localhost");
+                new SlidingTimeWindowRateLimiter(
+					redisEndpoint: "localhost:6380", 
+					redisPassword: null,
+					redisSsl: true,
+					countThrottledRequests: true);
             
             var policies = new List<RateLimitPolicy>() {
                 new RateLimitPolicy("test_client_throttle_1",
@@ -42,7 +46,7 @@ namespace Domain.RateLimiting.Samples.ConsoleCore
             Console.WriteLine("Using RedisSlidingWindowRateLimiter");
             Console.WriteLine("");
 
-            Console.WriteLine($"Running limiter with a policy of 2 allowed call rates (2 perSecond and 10 perMinute)  with 10 Threads each making 100 requests");
+            Console.WriteLine($"Running limiter with a policy of 2 allowed call rates (2 perSecond and 10 perMinute) with 10 Threads each making 100 requests");
             var taskArray = new Task[numberOfThreads];
 
             Parallel.ForEach<int>(Enumerable.Range(0, numberOfThreads).ToArray(), (_) =>

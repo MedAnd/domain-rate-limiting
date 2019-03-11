@@ -24,6 +24,7 @@
         {
             State = state;
             WaitingIntervalInTicks = waitingIntervalInTicks;
+			Throttled = (state == ResultState.Throttled);
             CacheKey = cacheKey;
             TokensRemaining = callsRemaining;
             ViolatedPolicyName = violatedPolicyName;

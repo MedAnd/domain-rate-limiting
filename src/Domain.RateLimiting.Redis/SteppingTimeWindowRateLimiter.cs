@@ -29,6 +29,8 @@ namespace Domain.RateLimiting.Redis
         };
         
         public SteppingTimeWindowRateLimiter(string redisEndpoint,
+			string redisPassword = null,
+			bool redisSsl = false,
             Action<Exception> onException = null,
             Action<RateLimitingResult> onThrottled = null,
             int connectionTimeoutInMilliseconds = 2000,
@@ -37,7 +39,9 @@ namespace Domain.RateLimiting.Redis
             ICircuitBreaker circuitBreaker = null,
             IClock clock = null,
             Func<Task<IConnectionMultiplexer>> connectToRedisFunc = null) : base(redisEndpoint,
-            onException,
+			redisPassword,
+			redisSsl,
+			onException,
             onThrottled,
             connectionTimeoutInMilliseconds,
             syncTimeoutInMilliseconds,

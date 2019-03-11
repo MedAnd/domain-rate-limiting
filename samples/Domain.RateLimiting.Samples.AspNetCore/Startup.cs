@@ -132,7 +132,9 @@ namespace Domain.RateLimiting.Samples.AspNetCore
 
             var rateLimitCacheProvider = new SlidingTimeWindowRateLimiter(
                 redisRateLimiterSettings.RateLimitRedisCacheConnectionString,
-                (exp) => _logger.LogError("Error in rate limiting",
+				redisRateLimiterSettings.RateLimitRedisCachePasswordString,
+				redisRateLimiterSettings.RateLimitRedisCacheSsl,
+				(exp) => _logger.LogError("Error in rate limiting",
                     exp),
                 onThrottled: (rateLimitingResult) =>
                 {
